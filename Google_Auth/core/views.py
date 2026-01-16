@@ -43,6 +43,14 @@ def google_auth(request):
                     "error": "User needs to sign in through email",
                     "status": False,
                 }, status=status.HTTP_403_FORBIDDEN)
-
+            
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "tokens": {
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
+            },
+            "status": True
+        }, status=status.HTTP_200_OK)
     except ValueError:
         return Response({"error": "Invalid token","status": False}, status=status.HTTP_400_BAD_REQUEST)
