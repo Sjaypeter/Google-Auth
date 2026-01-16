@@ -68,5 +68,71 @@
             <a href="#" style="color: #3b82f6;">Privacy Policy</a>.
         </p>
     </div>
+
+    <script>
+        const api = "http://127.0.0.1:8000"; // Update with your server URL
+        const loadingEl = document.getElementById("loading");
+        const errorEl = document.getElementById("error");
+        const successEl = document.getElementById("success");
+        const tokenDisplayEl = document.getElementById("tokenDisplay");
+
+
+
+        function handleCallbackResponse(response) {
+            console.log("Response received:", response);
+            
+            // Show loading state
+            loadingEl.style.display = "block";
+            errorEl.style.display = "none";
+            successEl.style.display = "none";
+            tokenDisplayEl.style.display = "none";
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append("token", response.credential);
+            
+            // Send token to your Django API
+            fetch(`${api}/google_login/`, {
+                method: "POST",
+                body: formData,
+            })
+            .then(res => {
+                if (!res.ok) {
+                throw new Error("Login failed. Please try again.");
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log("Login successful:", data);
+                
+                // Display success message
+                successEl.textContent = "Login successful! Tokens received:";
+                successEl.style.display = "block";
+                
+                // Display tokens in the div
+                const tokenInfo = {
+                tokens: data.tokens,
+                full_response: data
+                };
+                
+                tokenDisplayEl.innerHTML = `
+                <strong>Access Token:</strong><br>
+                ${tokenInfo.tokens || 'Not found'}<br><br>
+                <strong>Full Response:</strong><br>
+                ${JSON.stringify(data, null, 2)}
+                `;
+                tokenDisplayEl.style.display = "block";
+            })
+            .catch(err => {
+                console.error("Login error:", err);
+                errorEl.textContent = "An unexpected error occurred. Please try again.";
+                errorEl.style.display = "block";
+            })
+            .finally(() => {
+                loadingEl.style.display = "none";
+            });
+            }
+        </script>
+
 </body>
 </html>
