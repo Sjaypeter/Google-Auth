@@ -22,5 +22,12 @@ def google_auth(request):
             settings.GOOGLE_OAUTH_CLIENT_ID
         )
 
+        print(id_info)
+
+        email = id_info['email']
+        first_name = id_info.get('given_name', '')
+        last_name = id_info.get('family_name', '')
+        profile_pic_url = id_info.get('picture', '')
+
     except ValueError:
         return Response({"error": "Invalid token","status": False}, status=status.HTTP_400_BAD_REQUEST)
