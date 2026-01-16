@@ -29,5 +29,20 @@ def google_auth(request):
         last_name = id_info.get('family_name', '')
         profile_pic_url = id_info.get('picture', '')
 
+        user, created = User.objects.get_or_create(email=email)
+
+        if created:
+            user.set_unusable_password()
+            user.first_name = first_name
+            user.last_name = last_name
+            user.registration_method = 'google'
+            user.save()
+        else:
+            if user.registration_method != 'google':
+                return Response({
+                    "error": "User needs to sign in through email",
+                    "status": False,
+                }, status=status.HTTP_403_FORBIDDEN)
+
     except ValueError:
         return Response({"error": "Invalid token","status": False}, status=status.HTTP_400_BAD_REQUEST)
